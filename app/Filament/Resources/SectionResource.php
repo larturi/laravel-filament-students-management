@@ -37,7 +37,7 @@ class SectionResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name'),
-                TextColumn::make('class.name')
+                TextColumn::make('class.name')->searchable()
                     ->badge(),
                 TextColumn::make('students_count')
                     ->counts('students')
