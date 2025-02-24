@@ -19,6 +19,7 @@ use Filament\Tables\Actions\BulkAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
+use Filament\Tables\Actions\Action;
 use Maatwebsite\Excel\Facades\Excel;
 
 class StudentResource extends Resource
@@ -26,6 +27,13 @@ class StudentResource extends Resource
     protected static ?string $model = Student::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
+
+    protected static ?string $navigationGroup = 'Academic Management';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return Student::count();
+    }
 
     public static function form(Form $form): Form
     {
@@ -98,6 +106,10 @@ class StudentResource extends Resource
                     }),
             ])
             ->actions([
+                Action::make('downloadPdf')
+                    ->url(function (Student $student) {
+                        return route('student.invoice.generate', $student);
+                    }),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])

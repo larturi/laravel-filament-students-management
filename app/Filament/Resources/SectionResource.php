@@ -3,18 +3,16 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\SectionResource\Pages;
-use App\Filament\Resources\SectionResource\RelationManagers;
 use App\Models\Section;
-use Filament\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Validation\Rules\Unique;
 
 class SectionResource extends Resource
 {
@@ -22,13 +20,22 @@ class SectionResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $navigationGroup = 'Academic Management';
+
+    public static function getNavigationBadge(): ?string
+    {
+        return Section::count();
+    }
+
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Select::make('class_id')
                     ->relationship(name: 'class', titleAttribute: 'name'),
-                TextInput::make('name')
+                TextInput::make('name')->unique(ignoreRecord: true, modifyRuleUsing: function (Get $get, Unique $rule) {
+                    return $rule->where('class_id', $get('class_id'));
+                }),
             ]);
     }
 
@@ -36,8 +43,10 @@ class SectionResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name'),
-                TextColumn::make('class.name')->searchable()
+                TextColumn::make('name')->sortable(),
+                TextColumn::make('class.name')
+                    ->searchable()
+                    ->sortable()
                     ->badge(),
                 TextColumn::make('students_count')
                     ->counts('students')
@@ -54,7 +63,8 @@ class SectionResource extends Resource
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
-            ]);
+            ])
+            ->defaultSort('class.name');
     }
 
     public static function getRelations(): array
