@@ -32,3 +32,12 @@ DB_PASSWORD=password
 ```
 
 5. Entrar a <http://localhost/admin>
+
+
+### Limpiar cache
+
+``` bash
+./vendor/bin/sail artisan config:cache
+./vendor/bin/sail artisan route:cache
+./vendor/bin/sail artisan view:cache
+```
